@@ -26,7 +26,7 @@ variable "openstack_keypair" {
 
 variable "openstack_auth_url" {
     description = "The endpoint url to connect to OpenStack."
-    default  = "http://openstack.di.ual.es:5000/v3"
+    default  = "http://192.168.64.50:5000/v3"
 }
 
 

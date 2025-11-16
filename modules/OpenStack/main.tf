@@ -29,6 +29,21 @@ data "openstack_networking_secgroup_v2" "http" {
   name = "http"
 }
 
+resource "openstack_networking_port_v2" "mysql_port" {
+  name       = "mysql-port"
+  network_id = openstack_networking_network_v2.actividad06-net.id
+}
+
+resource "openstack_networking_port_v2" "book_api_port" {
+  name       = "book-api-port"
+  network_id = openstack_networking_network_v2.actividad06-net.id
+}
+
+resource "openstack_networking_port_v2" "book_app_port" {
+  name       = "book-app-port"
+  network_id = openstack_networking_network_v2.actividad06-net.id
+}
+
 # *** YOUR CODE HERE ***
 # Crear instancia denominada mysql conectada a la red del proyecto e inicializada
 # con el archivo install_mysql.sh
@@ -44,7 +59,7 @@ resource "openstack_compute_instance_v2" "mysql" {
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name]
 
   network {
-    uuid = openstack_networking_network_v2.actividad06-net.id
+    port = openstack_networking_port_v2.mysql_port.id
   }
 
   user_data = file("install_mysql.sh")
@@ -52,11 +67,7 @@ resource "openstack_compute_instance_v2" "mysql" {
 
 resource "openstack_networking_floatingip_v2" "mysql_fip" {
   pool = "public1"
-}
-
-resource "openstack_compute_floatingip_associate_v2" "mysql_fip" {
-  floating_ip = openstack_networking_floatingip_v2.mysql_fip.address
-  instance_id = openstack_compute_instance_v2.mysql.id
+  port_id = openstack_networking_port_v2.mysql_port.id
 }
 
 # Configura el archivo de plantilla para la API
@@ -91,7 +102,7 @@ resource "openstack_compute_instance_v2" "book_api" {
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
-    uuid = openstack_networking_network_v2.actividad06-net.id
+    port = openstack_networking_port_v2.book_api_port.id
   }
 
   user_data = data.template_file.setup-api-docker.rendered
@@ -107,11 +118,7 @@ resource "openstack_compute_instance_v2" "book_api" {
 
 resource "openstack_networking_floatingip_v2" "book_api_fip" {
   pool = "public1"
-}
-
-resource "openstack_compute_floatingip_associate_v2" "book_api_fip" {
-  floating_ip = openstack_networking_floatingip_v2.book_api_fip.address
-  instance_id = openstack_compute_instance_v2.book_api.id
+  port_id = openstack_networking_port_v2.book_api_port.id
 }
 
 # Configura el archivo de plantilla para la aplicación
@@ -141,7 +148,7 @@ resource "openstack_compute_instance_v2" "book_app" {
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
-    uuid = openstack_networking_network_v2.actividad06-net.id
+    port = openstack_networking_port_v2.book_app_port.id
   }
 
   user_data = data.template_file.setup-app-docker.rendered
@@ -153,11 +160,7 @@ resource "openstack_compute_instance_v2" "book_app" {
 
 resource "openstack_networking_floatingip_v2" "book_app_fip" {
   pool = "public1"
-}
-
-resource "openstack_compute_floatingip_associate_v2" "book_app_fip" {
-  floating_ip = openstack_networking_floatingip_v2.book_app_fip.address
-  instance_id = openstack_compute_instance_v2.book_app.id
+  port_id = openstack_networking_port_v2.book_app_port.id
 }
 
 # *** YOUR CODE HERE ***
