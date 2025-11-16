@@ -4,6 +4,15 @@ resource "openstack_networking_network_v2" "actividad06-net" {
   auto_create_subnetworks = true
 }
 
+# Grupos de seguridad ya existentes en OpenStack
+data "openstack_compute_secgroup_v2" "ssh" {
+  name = "ssh"
+}
+
+data "openstack_compute_secgroup_v2" "http" {
+  name = "http"
+}
+
 # *** YOUR CODE HERE ***
 # Crear instancia denominada mysql conectada a la red del proyecto e inicializada
 # con el archivo install_mysql.sh
@@ -12,10 +21,10 @@ resource "openstack_networking_network_v2" "actividad06-net" {
 
 resource "openstack_compute_instance_v2" "mysql" {
   name            = "mysql"
-  image_id        = var.image_id
-  flavor_id       = var.flavor_id
+  image_id        = "ubuntu24.04"
+  flavor_id       = "m1.medium"
   key_pair        = var.key_pair
-  security_groups = [openstack_compute_secgroup_v2.secgroup.name]
+  security_groups = [data.openstack_compute_secgroup_v2.ssh.name]
 
   network {
     name = openstack_networking_network_v2.actividad06-net.id
@@ -58,10 +67,10 @@ resource "openstack_compute_instance_v2" "book_api" {
 # **********************
 
   name            = "book_api"
-  image_id        = var.image_id
-  flavor_id       = var.flavor_id
+  image_id        = "ubuntu24.04"
+  flavor_id       = "m1.medium"
   key_pair        = var.key_pair
-  security_groups = [openstack_compute_secgroup_v2.secgroup.name]
+  security_groups = [data.openstack_compute_secgroup_v2.ssh.name, data.openstack_compute_secgroup_v2.http.name]
 
   network {
     name = openstack_networking_network_v2.actividad06-net.id
@@ -107,10 +116,10 @@ resource "openstack_compute_instance_v2" "book_app" {
 # **********************
 
   name            = "book_app"
-  image_id        = var.image_id
-  flavor_id       = var.flavor_id
+  image_id        = "ubuntu24.04"
+  flavor_id       = "m1.medium"
   key_pair        = var.key_pair
-  security_groups = [openstack_compute_secgroup_v2.secgroup.name]
+  security_groups = [data.openstack_compute_secgroup_v2.ssh.name, data.openstack_compute_secgroup_v2.http.name]
 
   network {
     name = openstack_networking_network_v2.actividad06-net.id
