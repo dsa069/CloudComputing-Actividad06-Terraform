@@ -1,15 +1,14 @@
 #***CREAMOS NETWORK PARA LA RED DEL PROYECTO EN OPENSTACK***
 resource "openstack_networking_network_v2" "actividad06-net" {
   name = "actividad06-net"
-  auto_create_subnetworks = true
 }
 
 # Grupos de seguridad ya existentes en OpenStack
-data "openstack_compute_secgroup_v2" "ssh" {
+data "openstack_networking_secgroup_v2" "ssh" {
   name = "ssh"
 }
 
-data "openstack_compute_secgroup_v2" "http" {
+data "openstack_networking_secgroup_v2" "http" {
   name = "http"
 }
 
@@ -24,7 +23,7 @@ resource "openstack_compute_instance_v2" "mysql" {
   image_id        = "ubuntu24.04"
   flavor_id       = "m1.medium"
   key_pair        = var.openstack_keypair
-  security_groups = [data.openstack_compute_secgroup_v2.ssh.name]
+  security_groups = [data.openstack_networking_secgroup_v2.ssh.name]
 
   network {
     name = openstack_networking_network_v2.actividad06-net.id
@@ -70,7 +69,7 @@ resource "openstack_compute_instance_v2" "book_api" {
   image_id        = "ubuntu24.04"
   flavor_id       = "m1.medium"
   key_pair        = var.openstack_keypair
-  security_groups = [data.openstack_compute_secgroup_v2.ssh.name, data.openstack_compute_secgroup_v2.http.name]
+  security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
     name = openstack_networking_network_v2.actividad06-net.id
@@ -119,7 +118,7 @@ resource "openstack_compute_instance_v2" "book_app" {
   image_id        = "ubuntu24.04"
   flavor_id       = "m1.medium"
   key_pair        = var.openstack_keypair
-  security_groups = [data.openstack_compute_secgroup_v2.ssh.name, data.openstack_compute_secgroup_v2.http.name]
+  security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
     name = openstack_networking_network_v2.actividad06-net.id
@@ -147,12 +146,15 @@ resource "openstack_compute_floatingip_associate_v2" "book_app_fip" {
 
 output "mysql_floating_ip" {
   value = openstack_networking_floatingip_v2.mysql_fip.address
+  depends_on = [openstack_networking_floatingip_v2.mysql_fip]
 }
 
 output "book_api_floating_ip" {
   value = openstack_networking_floatingip_v2.book_api_fip.address
+  depends_on = [openstack_networking_floatingip_v2.book_api_fip]
 }
 
 output "book_app_floating_ip" {
   value = openstack_networking_floatingip_v2.book_app_fip.address
+  depends_on = [openstack_networking_floatingip_v2.book_app_fip]
 }
