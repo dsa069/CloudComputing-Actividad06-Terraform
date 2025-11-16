@@ -17,7 +17,6 @@ variable "openstack_tenant_name" {
 
 variable "PASSWORD" {
     description = "The password to connect to OpenStack."
-
 }
 
 variable "openstack_keypair" {

@@ -3,5 +3,6 @@ module "Google-Storage" {
 }
 
 module "OpenStack" {
-  source              = "./modules/OpenStack"
+  source   = "./modules/OpenStack"
+  PASSWORD = var.PASSWORD
 }
