@@ -13,7 +13,7 @@
 
 # Recurso para crear el bucket de Google Storage
 resource "google_storage_bucket" "images_bucket" {
-    name     = "imagenes-bucket"   # Nombre del bucket, cambiar según necesidad
+    name     = var.gcp_bucket_name   # Nombre del bucket, cambiar según necesidad
     location = "US"                # Ubicación del bucket
 }
 
