@@ -5,6 +5,26 @@
 # * openstack_password inicializada con la contraseña en OpenStack
 # * openstack_keypair: Nombre del archivo de claves en OpenStack
 
+variable "openstack_user_name" {
+    description = "The username to connect to OpenStack."
+    default     = "curra campeon"
+}
+
+variable "openstack_tenant_name" {
+    description = "The project name in OpenStack."
+    default     = "your_project_name"
+}
+
+variable "openstack_password" {
+    description = "The password to connect to OpenStack."
+    default     = "your_password"
+}
+
+variable "openstack_keypair" {
+    description = "The name of the keypair file in OpenStack."
+    default     = "your_keypair_name"
+}
+
 variable "openstack_auth_url" {
     description = "The endpoint url to connect to OpenStack."
     default  = "http://openstack.di.ual.es:5000/v3"
