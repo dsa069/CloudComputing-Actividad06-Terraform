@@ -1,12 +1,14 @@
+#***CREAMOS NETWORK PARA LA RED DEL PROYECTO EN OPENSTACK***
+resource "openstack_networking_network_v2" "actividad06-net" {
+  name = "actividad06-net"
+  auto_create_subnetworks = true
+}
+
 # *** YOUR CODE HERE ***
 # Crear instancia denominada mysql conectada a la red del proyecto e inicializada
 # con el archivo install_mysql.sh
 # Asignarle una dirección IP flotante
 # **********************
-
-resource "openstack_networking_floatingip_v2" "mysql_fip" {
-  pool = "public"
-}
 
 resource "openstack_compute_instance_v2" "mysql" {
   name            = "mysql"
@@ -16,10 +18,14 @@ resource "openstack_compute_instance_v2" "mysql" {
   security_groups = [openstack_compute_secgroup_v2.secgroup.name]
 
   network {
-    name = var.network_name
+    name = openstack_networking_network_v2.actividad06-net.id
   }
 
   user_data = file("install_mysql.sh")
+}
+
+resource "openstack_networking_floatingip_v2" "mysql_fip" {
+  pool = "public1"
 }
 
 resource "openstack_compute_floatingip_associate_v2" "mysql_fip" {
@@ -58,22 +64,27 @@ resource "openstack_compute_instance_v2" "book_api" {
   security_groups = [openstack_compute_secgroup_v2.secgroup.name]
 
   network {
-    name = var.network_name
+    name = openstack_networking_network_v2.actividad06-net.id
   }
 
   user_data = data.template_file.setup-api-docker.rendered
 
+  #Espera a la la mv mysql antes de lanzar la api
   depends_on = [time_sleep.wait_5_minutes ]
 
 }
 
-resource "openstack_networking_floatingip_v2" "book_app_fip" {
-  pool = "public"
+# *** YOUR CODE HERE ***
+# Asignarle una dirección IP flotante
+# **********************
+
+resource "openstack_networking_floatingip_v2" "book_api_fip" {
+  pool = "public1"
 }
 
-resource "openstack_compute_floatingip_associate_v2" "book_app_fip" {
-  floating_ip = openstack_networking_floatingip_v2.book_app_fip.address
-  instance_id = openstack_compute_instance_v2.book_app.id
+resource "openstack_compute_floatingip_associate_v2" "book_api_fip" {
+  floating_ip = openstack_networking_floatingip_v2.book_api_fip.address
+  instance_id = openstack_compute_instance_v2.book_api.id
 }
 
 # Configura el archivo de plantilla para la aplicación
@@ -82,6 +93,8 @@ data "template_file" "setup-app-docker" {
   vars = {
     book_api_ip = openstack_compute_instance_v2.book_api.network.0.fixed_ip_v4
   }
+
+  #Espera a la API de libros para crear al app de libros
   depends_on = [openstack_compute_instance_v2.book_api]
 }
 
@@ -100,7 +113,7 @@ resource "openstack_compute_instance_v2" "book_app" {
   security_groups = [openstack_compute_secgroup_v2.secgroup.name]
 
   network {
-    name = var.network_name
+    name = openstack_networking_network_v2.actividad06-net.id
   }
 
   user_data = data.template_file.setup-app-docker.rendered
@@ -110,13 +123,26 @@ resource "openstack_compute_instance_v2" "book_app" {
 # Asignarle una dirección IP flotante
 # **********************
 
-output "mysql_floating_ip" {
-  value = openstack_networking_floatingip_v2.mysql_fip.address
+resource "openstack_networking_floatingip_v2" "book_app_fip" {
+  pool = "public"
+}
+
+resource "openstack_compute_floatingip_associate_v2" "book_app_fip" {
+  floating_ip = openstack_networking_floatingip_v2.book_app_fip.address
+  instance_id = openstack_compute_instance_v2.book_app.id
 }
 
 # *** YOUR CODE HERE ***
 # Mostrar las direcciones IP generadas
 # **********************
+
+output "mysql_floating_ip" {
+  value = openstack_networking_floatingip_v2.mysql_fip.address
+}
+
+output "book_api_floating_ip" {
+  value = openstack_networking_floatingip_v2.book_api_fip.address
+}
 
 output "book_app_floating_ip" {
   value = openstack_networking_floatingip_v2.book_app_fip.address
