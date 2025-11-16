@@ -3,6 +3,23 @@ resource "openstack_networking_network_v2" "actividad06-net" {
   name = "actividad06-net"
 }
 
+# Crear router desarrollo-router
+data "openstack_networking_network_v2" "public1" {
+  name = "public1"
+}
+
+resource "openstack_networking_router_v2" "actividad06-router" {
+  name                = "actividad06-router"
+  admin_state_up      = "true"
+  external_network_id = data.openstack_networking_network_v2.public1.id
+}
+
+# Conectar el router a la subred
+resource "openstack_networking_router_interface_v2" "router_interface" {
+  router_id = openstack_networking_router_v2.actividad06-router.id
+}
+
+
 # Grupos de seguridad ya existentes en OpenStack
 data "openstack_networking_secgroup_v2" "ssh" {
   name = "ssh"
@@ -22,11 +39,12 @@ resource "openstack_compute_instance_v2" "mysql" {
   name            = "mysql"
   image_id        = "ubuntu24.04"
   flavor_id       = "m1.medium"
+  availability_zone = "nova"
   key_pair        = var.openstack_keypair
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name]
 
   network {
-    name = openstack_networking_network_v2.actividad06-net.id
+    uuid = openstack_networking_network_v2.actividad06-net.id
   }
 
   user_data = file("install_mysql.sh")
@@ -68,11 +86,12 @@ resource "openstack_compute_instance_v2" "book_api" {
   name            = "book_api"
   image_id        = "ubuntu24.04"
   flavor_id       = "m1.medium"
+  availability_zone = "nova"
   key_pair        = var.openstack_keypair
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
-    name = openstack_networking_network_v2.actividad06-net.id
+    uuid = openstack_networking_network_v2.actividad06-net.id
   }
 
   user_data = data.template_file.setup-api-docker.rendered
@@ -117,11 +136,12 @@ resource "openstack_compute_instance_v2" "book_app" {
   name            = "book_app"
   image_id        = "ubuntu24.04"
   flavor_id       = "m1.medium"
+  availability_zone = "nova"
   key_pair        = var.openstack_keypair
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
-    name = openstack_networking_network_v2.actividad06-net.id
+    uuid = openstack_networking_network_v2.actividad06-net.id
   }
 
   user_data = data.template_file.setup-app-docker.rendered
