@@ -69,7 +69,7 @@ resource "openstack_networking_port_v2" "book_app_port" {
 # **********************
 
 resource "openstack_compute_instance_v2" "mysql" {
-  name            = "mysql-book"
+  name            = "mysql_book"
   image_name        = "ubuntu24.04"
   flavor_name       = "m1.medium"
   availability_zone = "nova"

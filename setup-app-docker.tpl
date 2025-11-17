@@ -31,4 +31,12 @@ chmod +x /usr/local/bin/docker-compose
 #   - BOOK_API_HOST=<direccion-ip-fija-instancia-API>  
 # **********************
 
+# Pull y lanzar el contenedor de la APP en background
+docker pull ualmtorres/books-app:v0 || true #Si falla sigue adelante
+
+docker run -d --name books-app \
+  -p 80:80 \
+  -e BOOK_API_HOST=${book_api_ip} \
+  ualmtorres/books-app:v0
+
 exit 0

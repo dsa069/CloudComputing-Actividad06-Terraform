@@ -35,4 +35,16 @@ chmod +x /usr/local/bin/docker-compose
 #   - TUTORIAL_DATABASE=SG 
 # **********************
 
+# Pull (seguro) y lanzar el contenedor de la API en background
+docker pull ualmtorres/books-api:v0 || true
+
+docker run -d --name books-api \
+  -p 80:3000 \
+  -e TUTORIAL_HOST=${mysql_ip} \
+  -e TUTORIAL_PORT=3306 \
+  -e TUTORIAL_USER=sg \
+  -e TUTORIAL_PASSWORD=my_password \
+  -e TUTORIAL_DATABASE=SG \
+  ualmtorres/books-api:v0
+
 exit 0
