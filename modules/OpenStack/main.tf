@@ -86,6 +86,7 @@ resource "openstack_compute_instance_v2" "mysql" {
 resource "openstack_networking_floatingip_v2" "mysql_fip" {
   pool = "public1"
   port_id = openstack_networking_port_v2.mysql_port.id
+  depends_on          = [openstack_networking_router_interface_v2.router-interface]
 }
 
 # Configura el archivo de plantilla para la API
@@ -137,6 +138,7 @@ resource "openstack_compute_instance_v2" "book_api" {
 resource "openstack_networking_floatingip_v2" "book_api_fip" {
   pool = "public1"
   port_id = openstack_networking_port_v2.book_api_port.id
+  depends_on          = [openstack_networking_router_interface_v2.router-interface]
 }
 
 # Configura el archivo de plantilla para la aplicación
@@ -179,6 +181,7 @@ resource "openstack_compute_instance_v2" "book_app" {
 resource "openstack_networking_floatingip_v2" "book_app_fip" {
   pool = "public1"
   port_id = openstack_networking_port_v2.book_app_port.id
+  depends_on          = [openstack_networking_router_interface_v2.router-interface]
 }
 
 # *** YOUR CODE HERE ***
