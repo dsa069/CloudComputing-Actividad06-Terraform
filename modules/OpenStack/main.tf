@@ -97,11 +97,11 @@ resource "openstack_networking_port_v2" "book_app_port" {
 # **********************
 
 resource "openstack_compute_instance_v2" "mysql" {
-  name            = "mysql_book"
+  name              = "mysql_book"
   image_name        = "ubuntu24.04"
   flavor_name       = "m1.medium"
   availability_zone = "nova"
-  key_pair        = var.openstack_keypair
+  key_pair          = var.openstack_keypair
   #security_groups = [data.openstack_networking_secgroup_v2.ssh.name]
 
   network {
@@ -111,10 +111,11 @@ resource "openstack_compute_instance_v2" "mysql" {
   user_data = file("install_mysql.sh")
 }
 
+# Crear IP flotante para la instancia MySQL
 resource "openstack_networking_floatingip_v2" "mysql_fip" {
   pool = "public1"
   port_id = openstack_networking_port_v2.mysql_port.id
-  depends_on          = [openstack_networking_router_interface_v2.router-interface]
+  depends_on = [openstack_networking_router_interface_v2.router-interface]
 }
 
 # Configura el archivo de plantilla para la API
@@ -141,11 +142,11 @@ resource "openstack_compute_instance_v2" "book_api" {
 # con el archivo de la plantilla ya inicializado setup-api-docker
 # **********************
 
-  name            = "book_api"
+  name              = "book_api"
   image_name        = "ubuntu24.04"
   flavor_name       = "m1.medium"
   availability_zone = "nova"
-  key_pair        = var.openstack_keypair
+  key_pair          = var.openstack_keypair
   #security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
@@ -166,7 +167,7 @@ resource "openstack_compute_instance_v2" "book_api" {
 resource "openstack_networking_floatingip_v2" "book_api_fip" {
   pool = "public1"
   port_id = openstack_networking_port_v2.book_api_port.id
-  depends_on          = [openstack_networking_router_interface_v2.router-interface]
+  depends_on = [openstack_networking_router_interface_v2.router-interface]
 }
 
 # Configura el archivo de plantilla para la aplicación
@@ -188,11 +189,11 @@ resource "openstack_compute_instance_v2" "book_app" {
 # con el archivo de la aplicación ya inicializado setup-app-docker
 # **********************
 
-  name            = "book_app"
+  name              = "book_app"
   image_name        = "ubuntu24.04"
   flavor_name       = "m1.medium"
   availability_zone = "nova"
-  key_pair        = var.openstack_keypair
+  key_pair          = var.openstack_keypair
   #security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
@@ -209,7 +210,7 @@ resource "openstack_compute_instance_v2" "book_app" {
 resource "openstack_networking_floatingip_v2" "book_app_fip" {
   pool = "public1"
   port_id = openstack_networking_port_v2.book_app_port.id
-  depends_on          = [openstack_networking_router_interface_v2.router-interface]
+  depends_on = [openstack_networking_router_interface_v2.router-interface]
 }
 
 # *** YOUR CODE HERE ***
