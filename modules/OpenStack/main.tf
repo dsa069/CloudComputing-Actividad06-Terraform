@@ -38,6 +38,22 @@ data "openstack_networking_secgroup_v2" "http" {
   name = "http"
 }
 
+# Crear grupo de seguridad para abrir el puerrto 3306 MySQL
+resource "openstack_networking_secgroup_v2" "mysql_sg" {
+  name        = "mysql-sg"
+  description = "Security group para MySQL (permitir 3306 desde la red privada)"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "mysql_ingress_internal" {
+  security_group_id  = openstack_networking_secgroup_v2.mysql_sg.id
+  direction          = "ingress"
+  ethertype          = "IPv4"
+  protocol           = "tcp"
+  port_range_min     = 3306
+  port_range_max     = 3306
+  remote_ip_prefix   = "10.2.0.0/24"
+}
+
 resource "openstack_networking_port_v2" "mysql_port" {
   name       = "mysql-book-port"
   network_id = openstack_networking_network_v2.actividad06-net.id
@@ -45,7 +61,8 @@ resource "openstack_networking_port_v2" "mysql_port" {
     subnet_id = openstack_networking_subnet_v2.actividad06-subnet.id
   }
   security_group_ids = [
-   data.openstack_networking_secgroup_v2.ssh.id
+   data.openstack_networking_secgroup_v2.ssh.id,
+   openstack_networking_secgroup_v2.mysql_sg.id
   ]
 }
 
