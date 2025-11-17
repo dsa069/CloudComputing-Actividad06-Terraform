@@ -70,8 +70,8 @@ resource "openstack_networking_port_v2" "book_app_port" {
 
 resource "openstack_compute_instance_v2" "mysql" {
   name            = "mysql-book"
-  image_id        = "ubuntu24.04"
-  flavor_id       = "m1.medium"
+  image_name        = "ubuntu24.04"
+  flavor_name       = "m1.medium"
   availability_zone = "nova"
   key_pair        = var.openstack_keypair
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name]
@@ -114,8 +114,8 @@ resource "openstack_compute_instance_v2" "book_api" {
 # **********************
 
   name            = "book_api"
-  image_id        = "ubuntu24.04"
-  flavor_id       = "m1.medium"
+  image_name        = "ubuntu24.04"
+  flavor_name       = "m1.medium"
   availability_zone = "nova"
   key_pair        = var.openstack_keypair
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
@@ -161,8 +161,8 @@ resource "openstack_compute_instance_v2" "book_app" {
 # **********************
 
   name            = "book_app"
-  image_id        = "ubuntu24.04"
-  flavor_id       = "m1.medium"
+  image_name        = "ubuntu24.04"
+  flavor_name       = "m1.medium"
   availability_zone = "nova"
   key_pair        = var.openstack_keypair
   security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
