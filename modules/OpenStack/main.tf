@@ -3,7 +3,15 @@ resource "openstack_networking_network_v2" "actividad06-net" {
   name = "actividad06-net"
 }
 
-# Crear router desarrollo-router
+# Crear subred actividad06-subnet
+resource "openstack_networking_subnet_v2" "actividad06-subnet" {
+  name       = "actividad06-subnet"
+  network_id = openstack_networking_network_v2.actividad06-net.id
+  cidr       = "10.2.0.0/24"
+  ip_version = 4
+}
+
+# Crear router actividad06-router
 data "openstack_networking_network_v2" "public1" {
   name = "public1"
 }
@@ -15,8 +23,9 @@ resource "openstack_networking_router_v2" "actividad06-router" {
 }
 
 # Conectar el router a la subred
-resource "openstack_networking_router_interface_v2" "router_interface" {
+resource "openstack_networking_router_interface_v2" "router-interface" {
   router_id = openstack_networking_router_v2.actividad06-router.id
+  subnet_id = openstack_networking_subnet_v2.actividad06-subnet.id
 }
 
 
@@ -30,18 +39,27 @@ data "openstack_networking_secgroup_v2" "http" {
 }
 
 resource "openstack_networking_port_v2" "mysql_port" {
-  name       = "mysql-port"
+  name       = "mysql-book-port"
   network_id = openstack_networking_network_v2.actividad06-net.id
+  fixed_ip {
+    subnet_id = openstack_networking_subnet_v2.actividad06-subnet.id
+  }
 }
 
 resource "openstack_networking_port_v2" "book_api_port" {
   name       = "book-api-port"
   network_id = openstack_networking_network_v2.actividad06-net.id
+  fixed_ip {
+    subnet_id = openstack_networking_subnet_v2.actividad06-subnet.id
+  }
 }
 
 resource "openstack_networking_port_v2" "book_app_port" {
   name       = "book-app-port"
   network_id = openstack_networking_network_v2.actividad06-net.id
+  fixed_ip {
+    subnet_id = openstack_networking_subnet_v2.actividad06-subnet.id
+  }
 }
 
 # *** YOUR CODE HERE ***
@@ -51,7 +69,7 @@ resource "openstack_networking_port_v2" "book_app_port" {
 # **********************
 
 resource "openstack_compute_instance_v2" "mysql" {
-  name            = "mysql"
+  name            = "mysql-book"
   image_id        = "ubuntu24.04"
   flavor_id       = "m1.medium"
   availability_zone = "nova"
