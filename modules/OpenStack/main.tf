@@ -44,6 +44,9 @@ resource "openstack_networking_port_v2" "mysql_port" {
   fixed_ip {
     subnet_id = openstack_networking_subnet_v2.actividad06-subnet.id
   }
+  security_group_ids = [
+   data.openstack_networking_secgroup_v2.ssh.id
+  ]
 }
 
 resource "openstack_networking_port_v2" "book_api_port" {
@@ -52,6 +55,10 @@ resource "openstack_networking_port_v2" "book_api_port" {
   fixed_ip {
     subnet_id = openstack_networking_subnet_v2.actividad06-subnet.id
   }
+  security_group_ids = [
+   data.openstack_networking_secgroup_v2.ssh.id,
+   data.openstack_networking_secgroup_v2.http.id
+  ]
 }
 
 resource "openstack_networking_port_v2" "book_app_port" {
@@ -60,6 +67,10 @@ resource "openstack_networking_port_v2" "book_app_port" {
   fixed_ip {
     subnet_id = openstack_networking_subnet_v2.actividad06-subnet.id
   }
+  security_group_ids = [
+   data.openstack_networking_secgroup_v2.ssh.id,
+   data.openstack_networking_secgroup_v2.http.id
+  ]
 }
 
 # *** YOUR CODE HERE ***
@@ -74,7 +85,7 @@ resource "openstack_compute_instance_v2" "mysql" {
   flavor_name       = "m1.medium"
   availability_zone = "nova"
   key_pair        = var.openstack_keypair
-  security_groups = [data.openstack_networking_secgroup_v2.ssh.name]
+  #security_groups = [data.openstack_networking_secgroup_v2.ssh.name]
 
   network {
     port = openstack_networking_port_v2.mysql_port.id
@@ -118,7 +129,7 @@ resource "openstack_compute_instance_v2" "book_api" {
   flavor_name       = "m1.medium"
   availability_zone = "nova"
   key_pair        = var.openstack_keypair
-  security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
+  #security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
     port = openstack_networking_port_v2.book_api_port.id
@@ -165,7 +176,7 @@ resource "openstack_compute_instance_v2" "book_app" {
   flavor_name       = "m1.medium"
   availability_zone = "nova"
   key_pair        = var.openstack_keypair
-  security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
+  #security_groups = [data.openstack_networking_secgroup_v2.ssh.name, data.openstack_networking_secgroup_v2.http.name]
 
   network {
     port = openstack_networking_port_v2.book_app_port.id
